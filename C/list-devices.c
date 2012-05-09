@@ -131,6 +131,8 @@ int main(int argc, char *argv[])
 
 	// note: in case of error, the error description can't be retrieved because signalyzer connection was never opened in this example and
 	// none of the ports were initialized
+	if (status != SIGNALYZER_STATUS_OK)
+		printf("The following error occurred 0x%8X", status);
 
 	// dispose signalyzer context and release memory
 	status = signalyzer_dispose(signalyzer_handle);

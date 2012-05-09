@@ -113,6 +113,8 @@ int main(int argc, char* argv[])
 
 	// note: in case of error, the error description can't be retrieved because signalyzer connection was never opened in this example and
 	// none of the ports were initialized
+	if (status != SIGNALYZER_STATUS_OK)
+		cout << "The following error occurred 0x" << hex << status;
 
 	// dispose signalyzer context and release memory
 	signalyzer.~Signalyzer();
