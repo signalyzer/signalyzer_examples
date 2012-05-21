@@ -32,8 +32,8 @@
 #include "signalyzer.h"
 
 /*
- * This simple example shows how to list attached signalyzer devices.
- *
+ * This example shows how to list attached signalyzer devices and 
+ * open connection to a first device in the list.
  */
 
 int main(int argc, char *argv[])
@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
 	uint32_t library_version = 0x0;
 	uint32_t number_of_devices = 0;
 	char device_list[10][64];
-	struct signalyzer_device_info_node_t device_info_node[10];
 	const char * error_description = NULL;
 	uint32_t i;
 
@@ -73,46 +72,7 @@ int main(int argc, char *argv[])
 	if (status == SIGNALYZER_STATUS_OK)
 		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_DEVICE_TYPE, 0, SIGNALYZER_DEVICE_TYPE_SIGNALYZER_H4);
 
-	// specify format of the list library will return. 
-	// The API can return either an array of serial numbers, array of device descriptions, or an array of structures signalyzer_device_info_node_t
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_LIST_TYPE, 0, SIGNALYZER_LIST_TYPE_DESCRIPTION);
-
-	// retrieve device list containing device description of each found device
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_get_device_list(signalyzer_handle, device_list, &number_of_devices);
-
-	if (status == SIGNALYZER_STATUS_OK)
-	{
-		printf("Description based search found %d device(s)\r\n", number_of_devices);
-
-		if (number_of_devices)
-		{
-			for (i = 0; i < number_of_devices; i++)
-				printf("found: %s\r\n", device_list[i]);
-		}
-	}
-
-	// next example will show how to retrieve device list containing an array of signalyzer_device_info_node_t structures
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_LIST_TYPE, 0, SIGNALYZER_LIST_TYPE_INFO_NODE);
-
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_get_device_list(signalyzer_handle, device_info_node, &number_of_devices);
-
-	if (status == SIGNALYZER_STATUS_OK)
-	{
-		printf("signalyzer_device_info_node_t based search found %d device(s)\r\n", number_of_devices);
-
-		if (number_of_devices)
-		{
-			for (i = 0; i < number_of_devices; i++)
-				printf("found: %s, %s, %d\r\n", device_info_node[i].serial_number, device_info_node[i].description, device_info_node[i].device_type);
-		}
-	}
-
-
-	// here a list of found serial numbers will be read
+	// specify format of the list library will return.
 	if (status == SIGNALYZER_STATUS_OK)
 		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_LIST_TYPE, 0, SIGNALYZER_LIST_TYPE_SERIAL_NUMBER);
 
@@ -129,6 +89,27 @@ int main(int argc, char *argv[])
 				printf("found: %s\r\n", device_list[i]);
 		}
 	}
+
+	// if at least one device is present, open a connection with first attached device.
+	if (number_of_devices)
+	{
+		if (status == SIGNALYZER_STATUS_OK)
+			status = signalyzer_open(signalyzer_handle, device_list[0]);
+	}
+	else
+	{
+		// this is just to tell rest of the code below that no signalyzers were found
+		status = SIGNALYZER_STATUS_OTHER_ERROR;
+	}
+
+	// do reads and writes here...
+	// ...
+	// ...
+	// do reads and writes here...
+
+	// close the previously opened connection
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_close(signalyzer_handle);
 
 	// in case of error, retrieve an error description and display it
 	if (status != SIGNALYZER_STATUS_OK)
