@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 	// activate 5V on Connector A (pin 2 and 26)
 	// this is not really necessary for I2C operation, but aux power can be used to power external circuits
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_AUX_POWER_CONTROL, 0, 1);
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_AUX_VIO, 0, 1);
 
 	// set operating mode to I2C
 	if (status == SIGNALYZER_STATUS_OK)

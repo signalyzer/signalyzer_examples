@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SignalyzerNet;
+using Signalyzer;
 
 namespace list_devices
 {
@@ -16,7 +16,7 @@ namespace list_devices
 	        string[] device_list = new string[1];
             DeviceInfoNode[] device_info_node = new DeviceInfoNode[1];
 
-	        Signalyzer signalyzer = new Signalyzer();
+            SignalyzerDevice signalyzer = new SignalyzerDevice();
 
 	        if (status == SIGNALYZER_STATUS.OK)
 		        status = signalyzer.ReadU32(0, SIGNALYZER_ATTRIBUTE.CORE_API_VERSION, 0,  out library_version);

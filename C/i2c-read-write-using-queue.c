@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
 	// activate 5V on Connector A (pin 2 and 26)
 	// this is not really necessary for I2C operation, but aux power can be used to power external circuits
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_AUX_POWER_CONTROL, 0, 1);
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_AUX_VIO, 0, 1);
 
 	// set operating mode to I2C
 	if (status == SIGNALYZER_STATUS_OK)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 	getchar();
 
 	//---------------------------------------------------------------------------------------------
-	// simple I2C write transaction (non-queued):
+	// simple I2C write transaction:
 	// start : control_word : address_byte : data_byte : stop
 
 	// select queue with id = 1 for operation.
@@ -238,6 +238,10 @@ int main(int argc, char *argv[])
 	// now we run the queue to perform the bus transaction
 	if (status == SIGNALYZER_STATUS_OK)
 		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 0, 1);
+
+	// read value
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_read(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RX_DATA, 0, &data_buffer[0], 8);
 
 	printf ("press Enter to continue\r\n");
 	getchar();

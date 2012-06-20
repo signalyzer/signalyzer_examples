@@ -39,35 +39,35 @@ if { [catch {set s0 [signalyzer new]} err] } {
 puts "channel $s0 was created"
 
 # display current library version
-if { [catch {set lib_version [signalyzer read32 $s0 0 "CORE_API_VERSION" 0]} err] } {
-    puts stderr "error read32 ($err)\n"
+if { [catch {set lib_version [signalyzer read_u32 $s0 0 "CORE_API_VERSION" 0]} err] } {
+    puts stderr "error read_u32 ($err)\n"
 	exit 1
 }
 
 puts "signalyzer library version is $lib_version"
 
 # Set HAL for signalyzer library. Currently H2 and H4 devices support only LIBFTD2XX HAL (FTDI drivers)
-if { [catch {signalyzer write32 $s0 0 "CORE_HAL_INTERFACE" 0 $hal_type} err] } {
-    puts stderr "error write32 ($err)\n"
+if { [catch {signalyzer write_u32 $s0 0 "CORE_HAL_INTERFACE" 0 $hal_type} err] } {
+    puts stderr "error write_u32 ($err)\n"
 	exit 1
 }
 
 # specify what devices will be listed
-if { [catch {signalyzer write32 $s0 0 "CORE_DEVICE_TYPE" 0 $device_type} err] } {
-    puts stderr "error write32 ($err)\n"
+if { [catch {signalyzer write_u32 $s0 0 "CORE_DEVICE_TYPE" 0 $device_type} err] } {
+    puts stderr "error write_u32 ($err)\n"
 	exit 1
 }
 
 # specify format of the list library will return. 
 # The API can return either an array of serial numbers, array of device descriptions, or an array of structures signalyzer_device_info_node_t
-if { [catch {signalyzer write32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
-    puts stderr "error write32 ($err)\n"
+if { [catch {signalyzer write_u32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
+    puts stderr "error write_u32 ($err)\n"
 	exit 1
 }
 
 # retrieve device list containing device description of each found device
 if { [catch {set dev_list [signalyzer list $s0]} err] } {
-    puts stderr "error write32 ($err)\n"
+    puts stderr "error list ($err)\n"
 	exit 1
 }
 
@@ -86,14 +86,14 @@ if {[llength $dev_list] > 0} then {
 # SIGNALYZER_LIST_TYPE_INFO_NODE
 set list_type 0x03
 
-if { [catch {signalyzer write32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
-    puts stderr "error write32 ($err)\n"
+if { [catch {signalyzer write_u32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
+    puts stderr "error write_u32 ($err)\n"
 	exit 1
 }
 
 
 if { [catch {set dev_list [signalyzer list $s0]} err] } {
-    puts stderr "error write32 ($err)\n"
+    puts stderr "error list ($err)\n"
 	exit 1
 }
 
@@ -111,13 +111,13 @@ if {[llength $dev_list] > 0} then {
 # SIGNALYZER_LIST_TYPE_SERIAL_NUMBER
 set list_type 0x01
 
-if { [catch {signalyzer write32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
-    puts stderr "error write32 ($err)\n"
+if { [catch {signalyzer write_u32 $s0 0 "CORE_LIST_TYPE" 0 $list_type} err] } {
+    puts stderr "error write_u32 ($err)\n"
 	exit 1
 }
 
 if { [catch {set dev_list [signalyzer list $s0]} err] } {
-    puts stderr "error write32 ($err)\n"
+    puts stderr "error list ($err)\n"
 	exit 1
 }
 
