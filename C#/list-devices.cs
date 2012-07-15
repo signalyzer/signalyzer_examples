@@ -32,7 +32,7 @@ namespace list_devices
 
 	        // specify what devices will be listed
 	        if (status == SIGNALYZER_STATUS.OK)
-                status = signalyzer.WriteU32(0, SIGNALYZER_ATTRIBUTE.CORE_DEVICE_TYPE, 0, (UInt32)SIGNALYZER_DEVICE_TYPE.SIGNALYZER_H4);
+                status = signalyzer.WriteU32(0, SIGNALYZER_ATTRIBUTE.CORE_DEVICE_TYPE, 0, (UInt32)SIGNALYZER_DEVICE_TYPE.H4);
 
 	        // specify format of the list library will return. 
 	        // The API can return either an array of serial numbers, array of device descriptions, or an array of structures signalyzer_device_info_node_t

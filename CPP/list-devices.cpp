@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
 	// specify what devices will be listed
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer.WriteU32(0, SIGNALYZER_ATTRIBUTE_CORE_DEVICE_TYPE, 0, SIGNALYZER_DEVICE_TYPE_SIGNALYZER_H4);
+		status = signalyzer.WriteU32(0, SIGNALYZER_ATTRIBUTE_CORE_DEVICE_TYPE, 0, SIGNALYZER_DEVICE_TYPE_H4);
 
 	// specify format of the list library will return. 
 	// The API can return either an array of serial numbers, array of device descriptions, or an array of structures signalyzer_device_info_node_t

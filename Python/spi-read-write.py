@@ -21,45 +21,6 @@
 import time
 import signalyzer
 
-def i2c_write(address, value):
-	# generate start condition
-	s.write_u32(port, 'I2C_START_CONDITION', 0, 1);
-
-	# write control word
-	s.write_u8(port, 'I2C_DATA', 0, 0xA0);
-
-	# write address
-	s.write_u8(port, 'I2C_DATA', 0, address);
-
-	# write value
-	s.write_u8(port, 'I2C_DATA', 0, value);
-
-	# generate stop condition
-	s.write_u32(port, 'I2C_STOP_CONDITION', 0, 1);
-
-	return;
-
-def i2c_read(address):
-	# generate start condition
-	s.write_u32(port, 'I2C_START_CONDITION', 0, 1);
-
-	# write control word
-	s.write_u8(port, 'I2C_DATA', 0, 0xA0);
-
-	# write address
-	s.write_u8(port, 'I2C_DATA', 0, address);
-
-	# generate repeated start condition
-	s.write_u32(port, 'I2C_START_CONDITION', 0, 1);
-
-	# write control word
-	s.write_u8(port, 'I2C_DATA', 0, 0xA1);
-
-	# read value
-	return s.read_u8(port, 'I2C_DATA', 0);
-
-
-
 s = signalyzer.new()
 
 try:
@@ -75,7 +36,7 @@ try:
 
 	# specify what devices will be listed
 	# SIGNALYZER_DEVICE_TYPE_SIGNALYZER_H4
-	s.write_u32(0, 'CORE_DEVICE_TYPE', 0, 0x02)
+	s.write_u32(0, 'CORE_DEVICE_TYPE', 0, 0x01)
 
 	# specify format of the list library will return. 
 	# The API can return either an array of serial numbers, array of device descriptions, or an array of structures signalyzer_device_info_node_t
@@ -88,43 +49,49 @@ try:
 	print device_list
 
 	# open device
-	s.open(device_list[0])
+	s.open(device_list[1])
 
-	#i2c transactions will be done on port 1
+	#spi transactions will be done on port 1
 	port = 1;
 
 	# activate 5V on Connector A (pin 2 and 26)
 	# this is not really necessary for I2C operation, but aux power can be used to power external circuits
 	s.write_u32(port, 'AUX_VIO', 1, 1);
 
-	# set operating mode to I2C
+	# set operating mode to SPI
 	# SIGNALYZER_OPERATING_MODE_I2C	= 0x02
-	s.write_u32(port, 'PORT_OPERATING_MODE', 0,  2);
+	# SIGNALYZER_OPERATING_MODE_SPI	= 0x01
+	s.write_u32(port, 'PORT_OPERATING_MODE', 0,  1);
 
-	# set bus clock rate to 100 kHz
-	s.write_u32(port, 'I2C_CLOCK_RATE', 0, 100000);
+	# set bus clock rate to 1000 kHz
+	s.write_u32(port, 'SPI_CLOCK_RATE', 0, 1000000);
 
-	#---------------------------------------------------------------------------------------------
-	# simple I2C write transaction (non-queued):
-	# start : control_word : address_byte : data_byte : stop
+	s.write_u32(port, 'SPI_MODE', 0, 0);
 
-	i2c_write(0x00, 0x55);
+	s.write_u32(port, 'SPI_CS_MASK', 0, 0x08);
 
-	time.sleep(0.1);
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x00);
+	d = (0x06, 0);
+	s.write(port, 'SPI_DATA', 0, d, 8);		
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x08);
+	
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x00);
+	d = (0x2, 0, 0, 0, 0xAA, 0x55);
+	s.write(port, 'SPI_DATA', 0, d, 48);		
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x08);
+	
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x00);
+	d = (0x04, 0);
+	s.write(port, 'SPI_DATA', 0, d, 8);		
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x08);
 
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x00);
+	d = (0x3, 0, 0, 0, 0xAA, 0x55);
+	s.write(port, 'SPI_DATA', 0, d, 48);		
+	s.write_u32(port, 'SPI_CS_STATE', 0, 0x08);
 	#---------------------------------------------------------------------------------------------
 	# read operations, non-queued transfer first with single byte read
 
-	read_value = i2c_read(0x00);
-	print read_value
-
-	read_value = i2c_read(0x01);
-	print read_value
-
-	# generate stop condition
-	s.write_u32(port, 'I2C_STOP_CONDITION', 0, 1);
-
-	time.sleep(0.1);
 
 except Exception, e:
     print 'Exception {0}'.format(e)

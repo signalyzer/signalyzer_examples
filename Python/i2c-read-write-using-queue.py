@@ -63,7 +63,7 @@ try:
 	s.write_u32(port, 'PORT_OPERATING_MODE', 0,  2);
 
 	# set bus clock rate to 100 kHz
-	s.write_u32(port, 'I2C_CLOCK_RATE', 0, 100000);
+	s.write_u32(port, 'I2C_CLOCK_RATE', 0, 400000);
 
 	#---------------------------------------------------------------------------------------------
 	# simple I2C write transaction (queued):
@@ -89,8 +89,29 @@ try:
 	s.write_u32(port, 'I2C_STOP_CONDITION', 0, 1);
 
 	# now we run the queue to perform the bus transaction
-	s.write_u32(port, 'QUEUE_RUN', 0, 1);
+	# write_value parameter for QUEUE_RUN attribute sets what operation will be performed on the queue
+	# it is a bitfied
+	# 0x0001 - RUN
+	# 0x0002 - FLUSH_TXB, the tx buffer will be flushed after queue execution
+	# 0x0004 - FLUSH_RXB, the rx buffer will be flushed afte queue execution
+	# for example, here queue will be executed but both tx-buffer and rx-buffer will be saved, 
+	#the rx buffer is irrelevant here as this is write operation
+	s.write_u32(port, 'QUEUE_RUN', 1, 5);
+	
+	# delay here to ensure eeprom memory chip gets time to complete its own write operation
+	time.sleep(0.1);
+	
+	# since txb buffer was not flushed during last operation, the queue can be re-run over and over without need for reconstructing it
+	s.write_u32(port, 'QUEUE_RUN', 1, 5);
+	
+	# delay here to ensure eeprom memory chip gets time to complete its own write operation
+	time.sleep(0.1);
 
+	s.write_u32(port, 'QUEUE_RUN', 1, 5);
+	
+	# now we are done with queue, just flush buffers
+	s.write_u32(port, 'QUEUE_RUN', 1, 6);    
+	
 	# queue id = 0 is for non-queued operation. switch back to non-queue mode if needed
 	s.write_u32(port, 'QUEUE_ACTIVE', 0, 0);
 
@@ -118,14 +139,14 @@ try:
 	# write control word
 	s.write_u8(port, 'I2C_DATA', 0, 0xA1);
 
-	# read value (note: the value returned by this function is irrelevant until queue is ran)
+	# read value (note: this read operation will not return a value because queued mode is being used)
 	s.read_u8(port, 'I2C_DATA', 0);
 
 	# generate stop condition
 	s.write_u32(port, 'I2C_STOP_CONDITION', 0, 1);
 
 	# now we run the queue to perform the bus transaction
-	s.write_u32(port, 'QUEUE_RUN', 0, 1);
+	s.write_u32(port, 'QUEUE_RUN', 1, 1);
 
 	# read value
 	read_value = s.read(port, 'QUEUE_RX_DATA', 0, 8);

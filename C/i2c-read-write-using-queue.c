@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
 	// specify what devices will be listed
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_DEVICE_TYPE, 0, SIGNALYZER_DEVICE_TYPE_SIGNALYZER_H4);
+		status = signalyzer_write_u32(signalyzer_handle, 0, SIGNALYZER_ATTRIBUTE_CORE_DEVICE_TYPE, 0, SIGNALYZER_DEVICE_TYPE_H4);
 
 	// specify format of the list library will return.
 	if (status == SIGNALYZER_STATUS_OK)
@@ -157,8 +157,27 @@ int main(int argc, char *argv[])
 		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_STOP_CONDITION, 0, 1);
 
 	// now we run the queue to perform the bus transaction
+	// write_value parameter for QUEUE_RUN attribute sets what operation will be performed on the queue
+	// it is a bit-fied
+	// 0x0001 - RUN
+	// 0x0002 - FLUSH_TXB, the tx buffer will be flushed after queue execution
+	// 0x0004 - FLUSH_RXB, the rx buffer will be flushed afte queue execution
+	// for example, here queue will be executed but both tx-buffer and rx-buffer will be saved, 
+	// the rx buffer is irrelevant here as this is write operation
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 0, 1);
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_RUN);
+
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_RUN);
+
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_RUN);
+
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_RUN);
+
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_FLUSH_RXB + SIGNALYZER_ATTRIBUTE_QUEUE_RUN_FLUSH_TXB);
 
 	// queue id = 0 is for non-queued operation. switch back to non-queue mode if needed
 	if (status == SIGNALYZER_STATUS_OK)
@@ -167,40 +186,40 @@ int main(int argc, char *argv[])
 	printf ("press Enter to continue\r\n");
 	getchar();
 
+	////---------------------------------------------------------------------------------------------
+	//// another write transaction, but utilizing a buffer write
+	//// start : control_word : address_byte : data_byte : stop
+
+	//// select queue with id = 1 for operation.
+	//// from this point everything will be stored in queue to be executed later
+	//if (status == SIGNALYZER_STATUS_OK)
+	//	status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_ACTIVE, 0, 1);
+
+	//// generate start condition
+	//if (status == SIGNALYZER_STATUS_OK)
+	//	status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_START_CONDITION, 0, 1);
+
+	//data_buffer[0] = 0xA0;
+	//data_buffer[1] = 0x00;
+	//data_buffer[2] = 0x55;
+
+	//// write data bytes
+	//if (status == SIGNALYZER_STATUS_OK)
+	//	status = signalyzer_write(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_DATA, 0, data_buffer, (3 * 8));
+
+	//// generate stop condition
+	//if (status == SIGNALYZER_STATUS_OK)
+	//	status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_STOP_CONDITION, 0, 1);
+
+	//// now we run the queue to perform the bus transaction
+	//if (status == SIGNALYZER_STATUS_OK)
+	//	status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 0, 1);
+
+	//printf ("press Enter to continue\r\n");
+	//getchar();
+
 	//---------------------------------------------------------------------------------------------
-	// another write transaction, but utilizing a buffer write
-	// start : control_word : address_byte : data_byte : stop
-
-	// select queue with id = 1 for operation.
-	// from this point everything will be stored in queue to be executed later
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_ACTIVE, 0, 1);
-
-	// generate start condition
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_START_CONDITION, 0, 1);
-
-	data_buffer[0] = 0xA0;
-	data_buffer[1] = 0x00;
-	data_buffer[2] = 0x55;
-
-	// write data bytes
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_DATA, 0, data_buffer, (3 * 8));
-
-	// generate stop condition
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_STOP_CONDITION, 0, 1);
-
-	// now we run the queue to perform the bus transaction
-	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 0, 1);
-
-	printf ("press Enter to continue\r\n");
-	getchar();
-
-	//---------------------------------------------------------------------------------------------
-	// read operations, non-queued transfer first with single byte read
+	// read operations
 
 	// select queue with id = 1 for operation.
 	// from this point everything will be stored in queue to be executed later
@@ -229,7 +248,7 @@ int main(int argc, char *argv[])
 
 	// read value
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_read_u8(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_DATA, 0, &data_buffer[0]);
+		status = signalyzer_read_u8(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_I2C_DATA, 0, NULL); //&data_buffer[0]);
 
 	// generate stop condition
 	if (status == SIGNALYZER_STATUS_OK)
@@ -237,11 +256,14 @@ int main(int argc, char *argv[])
 
 	// now we run the queue to perform the bus transaction
 	if (status == SIGNALYZER_STATUS_OK)
-		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 0, 1);
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_RUN);
 
 	// read value
 	if (status == SIGNALYZER_STATUS_OK)
 		status = signalyzer_read(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RX_DATA, 0, &data_buffer[0], 8);
+
+	if (status == SIGNALYZER_STATUS_OK)
+		status = signalyzer_write_u32(signalyzer_handle, port, SIGNALYZER_ATTRIBUTE_QUEUE_RUN, 1, SIGNALYZER_ATTRIBUTE_QUEUE_RUN_FLUSH_RXB);
 
 	printf ("press Enter to continue\r\n");
 	getchar();
