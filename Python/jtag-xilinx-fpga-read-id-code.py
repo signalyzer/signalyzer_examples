@@ -154,7 +154,7 @@ try:
 	print device_list
 
 	# open device
-	s.open(device_list[1])
+	s.open(device_list[0])
 
 	# depending on a mode of signalyzer two or more ports is available for use. 
 	# H2 supports two ports, H4 supports 4 ports (but only first two can be used for I2C, SPI or JTAG)
